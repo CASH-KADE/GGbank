@@ -1,0 +1,37 @@
+-- Create the banking database
+CREATE DATABASE IF NOT EXISTS banking;
+USE banking;
+
+-- Create the admin table
+CREATE TABLE IF NOT EXISTS admin (
+    admin_id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(50) NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    fullname VARCHAR(100),
+    email VARCHAR(100),
+    phone VARCHAR(20)
+);
+
+-- Create the user table
+ user (
+    user_id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(50) NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    fullname VARCHAR(100),
+    balance DECIMAL(15, 2) DEFAULT 0.00,
+    address VARCHAR(255),
+    mobile_number VARCHAR(20),
+    account_type VARCHAR(50),
+    date_of_birth DATE,
+    id_proof VARCHAR(100),
+    account_number VARCHAR(20) UNIQUE
+);
+
+-- Create the transactions table
+CREATE TABLE IF NOT EXISTS transactions (
+    transaction_id INT AUTO_INCREMENT PRIMARY KEY,
+    fullname VARCHAR(255) NOT NULL,
+    transaction_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    amount DOUBLE NOT NULL,
+    transaction_type ENUM('credit', 'debit') NOT NULL
+);
