@@ -5,6 +5,7 @@ import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.ResultSet;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -18,13 +19,13 @@ public class ChangePinServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
     // SQL queries
-    private static final String VALIDATE_PIN_SQL = "SELECT * FROM user WHERE username = ? AND password = ?";
-    private static final String UPDATE_PIN_SQL = "UPDATE user SET password = ? WHERE username = ?";
+    private static final String VALIDATE_PIN_SQL = "SELECT * FROM user WHERE account_number = ? AND password = ?";
+    private static final String UPDATE_PIN_SQL = "UPDATE user SET password = ? WHERE account_number = ?";
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         HttpSession session = request.getSession();
-        String username = (String) session.getAttribute("username");
+        String accountNumber = (String) session.getAttribute("account_number");
         String oldPin = request.getParameter("oldPin");
         String newPin = request.getParameter("newPin");
         String confirmNewPin = request.getParameter("confirmNewPin");
@@ -35,11 +36,11 @@ public class ChangePinServlet extends HttpServlet {
         if (newPin.equals(confirmNewPin)) {
             try (Connection connection = sqlDAO.getConnection()) {
                 // Validate the old PIN
-                boolean isOldPinValid = validateOldPin(connection, username, oldPin);
+                boolean isOldPinValid = validateOldPin(connection, accountNumber, oldPin);
 
                 if (isOldPinValid) {
                     // Update the PIN
-                    boolean isUpdated = updatePinInDatabase(connection, username, newPin);
+                    boolean isUpdated = updatePinInDatabase(connection, accountNumber, newPin);
 
                     if (isUpdated) {
                         out.println("<html><body>");
@@ -83,18 +84,21 @@ public class ChangePinServlet extends HttpServlet {
         }
     }
 
-    private boolean validateOldPin(Connection connection, String username, String oldPin) throws SQLException {
+    private boolean validateOldPin(Connection connection, String accountNumber, String oldPin) throws SQLException {
+        System.out.println("Account Number: " + accountNumber);
+        System.out.println("Old PIN: " + oldPin);
         try (PreparedStatement preparedStatement = connection.prepareStatement(VALIDATE_PIN_SQL)) {
-            preparedStatement.setString(1, username);
+            preparedStatement.setString(1, accountNumber);
             preparedStatement.setString(2, oldPin);
-            return preparedStatement.executeQuery().next();
+            ResultSet resultSet = preparedStatement.executeQuery();
+            return resultSet.next();
         }
     }
 
-    private boolean updatePinInDatabase(Connection connection, String username, String newPin) throws SQLException {
+    private boolean updatePinInDatabase(Connection connection, String accountNumber, String newPin) throws SQLException {
         try (PreparedStatement preparedStatement = connection.prepareStatement(UPDATE_PIN_SQL)) {
             preparedStatement.setString(1, newPin);
-            preparedStatement.setString(2, username);
+            preparedStatement.setString(2, accountNumber);
             return preparedStatement.executeUpdate() > 0;
         }
     }
