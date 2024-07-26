@@ -194,7 +194,7 @@
                 <button type="submit" class="withdraw-money-button">Withdraw Money</button>
             </form>
 			
-			 <!-- Money Transfer Section -->
+			<!-- Money Transfer Section -->
             <form action="DashboardServlet" method="post">
 		        <input type="hidden" name="action" value="transfer">
 		        Amount to Transfer: <input type="text" name="amount" required>
